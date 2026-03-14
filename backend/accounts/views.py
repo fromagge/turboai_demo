@@ -9,28 +9,33 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from accounts.cache import delete_cached_user, get_cached_user, set_cached_user
 from accounts.serializers import RegisterSerializer
 from accounts.tokens import clear_auth_cookies, get_tokens_for_user, set_auth_cookies
 
 User = get_user_model()
 
 
-def _user_data(user):
-    return {"id": user.id, "username": user.username, "email": user.email}
-
-
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login_view(request):
-    username = request.data.get("username", "")
+    email = request.data.get("email", "")
     password = request.data.get("password", "")
-    user = authenticate(request, username=username, password=password)
+    try:
+        user_obj = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return Response(
+            {"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+        )
+
+    user = authenticate(request, username=user_obj.username, password=password)
     if user is None:
         return Response(
             {"message": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
         )
     tokens = get_tokens_for_user(user)
-    response = Response({"user": _user_data(user)})
+    user_data = set_cached_user(user)
+    response = Response({"user": user_data})
     set_auth_cookies(response, tokens)
     return response
 
@@ -42,7 +47,8 @@ def register_view(request):
     serializer.is_valid(raise_exception=True)
     user = serializer.save()
     tokens = get_tokens_for_user(user)
-    response = Response({"user": _user_data(user)}, status=status.HTTP_201_CREATED)
+    user_data = set_cached_user(user)
+    response = Response({"user": user_data}, status=status.HTTP_201_CREATED)
     set_auth_cookies(response, tokens)
     return response
 
@@ -60,7 +66,8 @@ def refresh_view(request):
         old_refresh.blacklist()
         user = User.objects.get(id=old_refresh["user_id"])
         tokens = get_tokens_for_user(user)
-        response = Response({"user": _user_data(user)})
+        user_data = set_cached_user(user)
+        response = Response({"user": user_data})
         set_auth_cookies(response, tokens)
         return response
     except (TokenError, User.DoesNotExist):
@@ -78,6 +85,7 @@ def logout_view(request):
     if raw_token:
         with contextlib.suppress(TokenError):
             RefreshToken(raw_token).blacklist()
+    delete_cached_user(request.user.id)
     response = Response({"message": "Logged out"})
     clear_auth_cookies(response)
     return response
@@ -86,4 +94,7 @@ def logout_view(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def me_view(request):
-    return Response({"user": _user_data(request.user)})
+    user_data = get_cached_user(request.user.id)
+    if user_data is None:
+        user_data = set_cached_user(request.user)
+    return Response({"user": user_data})

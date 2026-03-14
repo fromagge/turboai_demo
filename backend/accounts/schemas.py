@@ -6,9 +6,13 @@ class UserResponse(BaseModel):
     username: str
     email: str
 
+    @classmethod
+    def from_user(cls, user) -> dict:
+        return cls(id=user.id, username=user.username, email=user.email).model_dump()
+
 
 class LoginRequest(BaseModel):
-    username: str
+    email: str
     password: str
 
 
@@ -16,7 +20,3 @@ class RegisterRequest(BaseModel):
     username: str
     email: str
     password: str
-
-
-class MessageResponse(BaseModel):
-    message: str

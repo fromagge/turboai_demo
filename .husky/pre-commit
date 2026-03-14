@@ -17,21 +17,27 @@ fi
 if echo "$STAGED" | grep -q "^backend/.*\.py$"; then
   echo "🔍 Backend: running ruff (auto-fix then check)..."
   cd backend
-  # Get only staged backend .py files (strip backend/ prefix)
-  BACKEND_FILES=$(echo "$STAGED" | grep "^backend/.*\.py$" | sed 's|^backend/||')
-  # Auto-fix first so retry passes asap
-  uv run ruff check --fix $BACKEND_FILES
-  uv run ruff format $BACKEND_FILES
-  cd ..
-  # Re-stage only the backend .py files (in case ruff modified them)
-  echo "$STAGED" | grep "^backend/.*\.py$" | while read f; do git add "$f"; done
-  # Re-run checks; fail only if something is still wrong
-  cd backend
-  uv run ruff check $BACKEND_FILES
-  RUFF_CHECK=$?
-  uv run ruff format --check $BACKEND_FILES
-  RUFF_FORMAT=$?
-  cd ..
+  # Staged backend .py files (strip backend/ prefix), exclude migrations
+  BACKEND_FILES=$(echo "$STAGED" | grep "^backend/.*\.py$" | sed 's|^backend/||' | grep -v "/migrations/")
+  if [ -n "$BACKEND_FILES" ]; then
+    # Auto-fix first so retry passes asap
+    uv run ruff check --fix $BACKEND_FILES
+    uv run ruff format $BACKEND_FILES
+    cd ..
+    # Re-stage only the backend .py files we linted (in case ruff modified them)
+    echo "$STAGED" | grep "^backend/.*\.py$" | grep -v "/migrations/" | while read f; do git add "$f"; done
+    # Re-run checks; fail only if something is still wrong
+    cd backend
+    uv run ruff check $BACKEND_FILES
+    RUFF_CHECK=$?
+    uv run ruff format --check $BACKEND_FILES
+    RUFF_FORMAT=$?
+    cd ..
+  else
+    cd ..
+    RUFF_CHECK=0
+    RUFF_FORMAT=0
+  fi
 
   if [ $RUFF_CHECK -ne 0 ] || [ $RUFF_FORMAT -ne 0 ]; then
     echo "❌ Backend lint failed (unfixable). Fix the remaining issues and try again."

@@ -27,6 +27,7 @@
 ## Code Style
 
 - TypeScript strict — no `any`.
+- **Next.js 16**: Middleware is now called **Proxy** — use `src/proxy.ts` with a named `proxy` export (not `middleware.ts`).
 - Default to Server Components. Only add `'use client'` when the component needs hooks, event handlers, or browser APIs. Push `'use client'` to leaf components.
 - Use `cn()` from `@/lib/utils` for conditional class names.
 - Tailwind v4 CSS-first config in `globals.css` — there is no `tailwind.config` file.
@@ -37,13 +38,17 @@
 
 ```
 src/
-├── app/           # Routes, layouts, pages (App Router)
-├── components/    # Reusable UI components
-├── hooks/         # Custom React hooks
-├── lib/           # Framework utilities (query-client, cn(), etc.)
-├── services/      # API functions + queryOptions() factories
-├── stores/        # Zustand stores
-└── types/         # Shared TypeScript types
+├── app/              # Routes, layouts, pages (App Router)
+├── components/       # Reusable UI components
+├── hooks/            # Custom React hooks
+├── lib/
+│   ├── clients/      # API client, query client, query provider
+│   ├── schemas/      # Zod schemas (one file per domain: login.ts, register.ts, etc.)
+│   └── utils.ts      # cn() and other small utilities
+├── services/         # API functions + queryOptions() factories
+├── stores/           # Zustand stores
+└── types/            # Shared TypeScript types
 ```
 
-Create directories as needed — don't add empty placeholder files.
+- When a module grows beyond a single file, convert it to a folder. Import directly from the specific file (e.g. `@/lib/schemas/login`), **never** create `index.ts` barrel exports.
+- Create directories as needed — don't add empty placeholder files.

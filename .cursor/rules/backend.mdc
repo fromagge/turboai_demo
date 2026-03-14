@@ -1,0 +1,32 @@
+---
+description: Rules for TurboAI Django backend
+globs: backend/**
+---
+
+# TurboAI Backend Rules
+
+## Stack
+Python 3.12, Django 5.1, DRF, SimpleJWT (cookie-based), PostgreSQL 16, Redis 7, Pydantic v2 (drf-pydantic), Ruff.
+
+## Code Style
+- Function-based views with `@api_view` + `@permission_classes` decorators. No CBVs unless complexity demands it.
+- Pydantic `BaseModel` (from `drf_pydantic`) for request/response schemas in `schemas.py`. DRF serializers only when you need `create()`/`update()`.
+- Ruff formatting: line-length 88, double quotes, py312 target.
+- Import order: stdlib > third-party > first-party (config, core, accounts). Enforced by ruff isort.
+- Strict typing. No `Any`. Use `dict`, `list`, generics.
+
+## Auth
+- JWT in HTTP-only cookies, not Authorization headers. `CookieJWTAuthentication` handles this.
+- All endpoints are authenticated by default. Use `@permission_classes([AllowAny])` for public ones.
+- Refresh tokens are blacklisted on rotation and logout.
+- `/me` is cached in Redis (`user:{id}:me`, TTL = access token lifetime). Invalidate on logout/profile changes.
+
+## Caching
+- Use `accounts/cache.py` pattern: `get_cached_*`, `set_cached_*`, `delete_cached_*` helpers.
+- Cache keys: `{domain}:{id}:{scope}`. TTL should match relevant token or business logic.
+- Always invalidate cache on mutations.
+
+## Don'ts
+- No `@csrf_exempt`, no `print()`, no hardcoded secrets/URLs.
+- No raw querysets in responses — serialize through schemas.
+- No skipping migrations. No manual package installs (use `uv add`).

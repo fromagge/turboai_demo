@@ -1,0 +1,33 @@
+---
+description: Rules for TurboAI Next.js frontend
+globs: frontend/**
+---
+
+# TurboAI Frontend Rules
+
+## Stack
+Next.js 15 (App Router), TypeScript strict, Tailwind CSS v4 (CSS-first, no tailwind.config), Zustand v5, TanStack Query v5.
+
+## Code Style
+- `@/` absolute imports only. No relative imports.
+- Import order (eslint simple-import-sort): external > `@/` internal > styles.
+- Prettier: double quotes, semicolons, trailing commas, 80 chars.
+- No `any`. TypeScript strict mode.
+
+## Components
+- Default to Server Components. Only `'use client'` when hooks/events/browser APIs are needed.
+- Push `'use client'` to leaf components. Keep layouts as Server Components.
+- Use `cn()` from `@/lib/utils` for conditional classes.
+
+## State
+- Zustand v5: `create<T>()()` double-parens. Middleware order: immer > devtools > persist.
+- TanStack Query v5: `queryOptions()` factories in `src/services/`. Use `gcTime` not `cacheTime`.
+- No `useEffect` for data fetching — use TanStack Query.
+
+## Tailwind v4
+- Config in `globals.css` via `@theme` blocks. No `tailwind.config` file.
+- Use `cn()` for class merging. Avoid `@apply`.
+
+## Don'ts
+- No `tailwind.config.ts`. No `cacheTime`. No single-paren `create()` in Zustand.
+- No `'use client'` on layouts/pages unless truly required.

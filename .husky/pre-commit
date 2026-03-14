@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+
+# Get list of staged files
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Frontend: run lint-staged if any frontend files are staged
+if echo "$STAGED" | grep -q "^frontend/"; then
+  echo "🔍 Frontend: running lint-staged..."
+  cd frontend && npx lint-staged
+  FRONTEND_EXIT=$?
+  cd ..
+else
+  FRONTEND_EXIT=0
+fi
+
+# Backend: run ruff if any backend Python files are staged
+if echo "$STAGED" | grep -q "^backend/.*\.py$"; then
+  echo "🔍 Backend: running ruff..."
+  cd backend
+  # Get only staged backend .py files (strip backend/ prefix)
+  BACKEND_FILES=$(echo "$STAGED" | grep "^backend/.*\.py$" | sed 's|^backend/||')
+  uv run ruff check $BACKEND_FILES
+  RUFF_CHECK=$?
+  uv run ruff format --check $BACKEND_FILES
+  RUFF_FORMAT=$?
+  cd ..
+
+  if [ $RUFF_CHECK -ne 0 ] || [ $RUFF_FORMAT -ne 0 ]; then
+    echo "❌ Backend lint failed. Run 'cd backend && uv run ruff check --fix . && uv run ruff format .' to fix."
+    BACKEND_EXIT=1
+  else
+    BACKEND_EXIT=0
+  fi
+else
+  BACKEND_EXIT=0
+fi
+
+# Exit with failure if either failed
+if [ $FRONTEND_EXIT -ne 0 ] || [ $BACKEND_EXIT -ne 0 ]; then
+  exit 1
+fi

@@ -1,38 +1,33 @@
-from django.core.cache import cache
-from django.db import connection
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .schemas import HealthResponse, HelloResponse
+from core.schemas import HealthResponse, HelloResponse
+from core.utils import check_cache, check_database
 
 
 @api_view(["GET"])
 def health(request):
-    db_ok = True
-    cache_ok = True
+    db_ok = check_database()
+    cache_ok = check_cache()
 
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")
-    except Exception:
-        db_ok = False
-
-    try:
-        cache.set("health_check", "ok", timeout=10)
-        if cache.get("health_check") != "ok":
-            raise ValueError("cache read mismatch")
-    except Exception:
-        cache_ok = False
+    db_status = "ok" if db_ok else "error"
+    cache_status = "ok" if cache_ok else "error"
+    overall_status = "ok" if (db_ok and cache_ok) else "degraded"
 
     data = {
-        "status": "ok" if (db_ok and cache_ok) else "degraded",
-        "database": "ok" if db_ok else "error",
-        "cache": "ok" if cache_ok else "error",
+        "status": overall_status,
+        "database": db_status,
+        "cache": cache_status,
     }
     serializer = HealthResponse.drf_serializer(data=data)
-    serializer.is_valid()
-    http_status = status.HTTP_200_OK if (db_ok and cache_ok) else status.HTTP_503_SERVICE_UNAVAILABLE
+    serializer.is_valid(raise_exception=True)
+
+    http_status = (
+        status.HTTP_503_SERVICE_UNAVAILABLE
+        if not (db_ok and cache_ok)
+        else status.HTTP_200_OK
+    )
     return Response(serializer.data, status=http_status)
 
 

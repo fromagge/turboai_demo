@@ -67,6 +67,14 @@ export function Sidebar() {
       setNewName("");
       return;
     }
+    const exists = categories.some(
+      (c) => c.name.toLowerCase() === trimmed.toLowerCase(),
+    );
+    if (exists) {
+      setIsAdding(false);
+      setNewName("");
+      return;
+    }
     createMutation.mutate({ name: trimmed, color: newColor });
   };
 

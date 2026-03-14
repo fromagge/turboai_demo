@@ -17,7 +17,6 @@ dependencies = [
     "drf-pydantic>=2.9",
     "psycopg[binary,pool]>=3.1.8",
     "django-redis>=6.0",
-    "uvicorn[standard]",
     "django-environ",
     "nh3>=0.3.3",
 ]

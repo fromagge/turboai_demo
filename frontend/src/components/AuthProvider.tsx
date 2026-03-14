@@ -12,6 +12,11 @@ import { useAuthStore } from "@/stores/auth-store";
 
 const PUBLIC_PATHS = ["/login", "/register"];
 
+function isNoteEditorPath(path: string): boolean {
+  if (path === "/dashboard/new") return true;
+  return /^\/dashboard\/\d+$/.test(path);
+}
+
 function hasLoggedInCookie(): boolean {
   if (typeof document === "undefined") return false;
   return document.cookie.split("; ").some((c) => c.startsWith("logged_in=1"));
@@ -70,6 +75,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isPublic = PUBLIC_PATHS.includes(pathname);
 
   if (isPublic) {
+    return <>{children}</>;
+  }
+
+  if (isNoteEditorPath(pathname)) {
     return <>{children}</>;
   }
 

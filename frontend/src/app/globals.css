@@ -28,8 +28,24 @@
   font-family: var(--font-inria-serif), serif;
 }
 
+@import "./prose.css";
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+}
+
+/* Tiptap editor placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* Tiptap editor focus */
+.tiptap:focus {
+  outline: none;
 }

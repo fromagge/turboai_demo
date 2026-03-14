@@ -1,9 +1,21 @@
 import type { Note } from "@/types/note";
 
-export function stripMarkdownPreview(content: string, maxLen: number): string {
-  const plain = content.replace(/#{1,6}\s?|\*{1,2}|`/g, "").trim();
-  const snippet = plain.slice(0, maxLen);
-  return snippet + (plain.length > maxLen ? "…" : "");
+export function truncateMarkdown(
+  content: string,
+  maxLines = 5,
+  maxChars = 500,
+): string {
+  const lines = content.split("\n").slice(0, maxLines);
+  let result = lines.join("\n");
+  if (result.length > maxChars) {
+    result = result.slice(0, maxChars) + "...";
+  } else if (
+    content.split("\n").length > maxLines ||
+    content.length > maxChars
+  ) {
+    result += "...";
+  }
+  return result;
 }
 
 export function filterNotesByCategory(

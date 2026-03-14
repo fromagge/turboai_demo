@@ -69,7 +69,7 @@ export function RegisterForm() {
           alt=""
           width={188}
           height={134}
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 h-[134px] w-[188px] object-contain"
+          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-[-16px] h-[134px] w-[188px] object-contain"
         />
         <h1 className="w-full rounded-input py-3 text-center font-heading text-[48px] font-bold leading-[100%] tracking-normal text-foreground">
           Yay, New Friend!

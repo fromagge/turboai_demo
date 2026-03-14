@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { LogoutIconButton } from "@/app/dashboard/LogoutIconButton";
 import { Button } from "@/components/ui/Button";
 
 export function NewNoteButton() {
   return (
-    <div className="absolute right-6 top-7 z-10">
+    <div className="absolute right-6 top-7 z-10 flex items-center gap-3">
       <Link href="/dashboard/new">
         <Button
           type="button"
@@ -24,6 +25,7 @@ export function NewNoteButton() {
           <span className="text-sm font-bold leading-none">New Note</span>
         </Button>
       </Link>
+      <LogoutIconButton />
     </div>
   );
 }

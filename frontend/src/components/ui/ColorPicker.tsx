@@ -39,15 +39,15 @@ export function ColorPicker({
         onClick={() => setOpen(!open)}
       />
       {open && (
-        <div className="absolute top-5 left-0 z-20 grid grid-cols-5 gap-2.5 rounded-card border border-border bg-background p-3 shadow-md">
+        <div className="absolute top-5 left-0 z-20 grid h-18 w-36 grid-cols-5 gap-1 rounded-card border border-border bg-background p-3 shadow-md">
           {PRESET_COLORS.map((color) => (
             <button
               key={color}
               type="button"
               className="cursor-pointer rounded-full ring-offset-1"
               style={{
-                width: "28px",
-                height: "28px",
+                width: "16px",
+                height: "16px",
                 backgroundColor: color,
                 outline:
                   value === color ? "2px solid var(--color-border)" : "none",

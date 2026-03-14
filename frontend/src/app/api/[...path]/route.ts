@@ -69,7 +69,9 @@ async function proxy(
     );
   }
 
-  const responseBody = await backendResponse.arrayBuffer();
+  const noBody =
+    backendResponse.status === 204 || backendResponse.status === 304;
+  const responseBody = noBody ? null : await backendResponse.arrayBuffer();
 
   return new NextResponse(responseBody, {
     status: backendResponse.status,

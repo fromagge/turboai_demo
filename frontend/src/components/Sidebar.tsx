@@ -122,7 +122,7 @@ export function Sidebar() {
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setNewName(e.target.value)
               }
-              onBlur={handleSubmit}
+              onBlur={() => setTimeout(handleSubmit, 150)}
               onKeyDown={handleKeyDown}
               disabled={createMutation.isPending}
               placeholder="Category name"

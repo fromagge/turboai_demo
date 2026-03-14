@@ -8,7 +8,8 @@ async function proxy(
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await params;
-  const targetPath = `/api/${path.join("/")}`;
+  const joined = path.join("/");
+  const targetPath = `/api/${joined.endsWith("/") ? joined : `${joined}/`}`;
   const url = new URL(targetPath, BACKEND_URL);
   url.search = request.nextUrl.search;
 
@@ -48,6 +49,25 @@ async function proxy(
       responseHeaders.set(key, value);
     }
   });
+
+  const setCookies = responseHeaders.getSetCookie();
+  let loggedInAction: "set" | "clear" | null = null;
+
+  for (const cookie of setCookies) {
+    const match = cookie.match(/^access_token=([^;]*)/);
+    if (match) {
+      loggedInAction = match[1] ? "set" : "clear";
+    }
+  }
+
+  if (loggedInAction === "set") {
+    responseHeaders.append("Set-Cookie", "logged_in=1; Path=/; SameSite=Lax");
+  } else if (loggedInAction === "clear") {
+    responseHeaders.append(
+      "Set-Cookie",
+      "logged_in=; Path=/; Max-Age=0; SameSite=Lax",
+    );
+  }
 
   const responseBody = await backendResponse.arrayBuffer();
 

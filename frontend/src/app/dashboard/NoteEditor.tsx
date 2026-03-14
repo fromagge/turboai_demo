@@ -1,13 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { MicButton } from "@/app/dashboard/MicButton";
+import { MicControlBar } from "@/app/dashboard/MicControlBar";
 import { CategoryDropdown } from "@/app/dashboard/new/CategoryDropdown";
 import { CloseIcon } from "@/components/ui/CloseIcon";
-import { MarkdownEditor } from "@/components/ui/MarkdownEditor";
+import {
+  MarkdownEditor,
+  type MarkdownEditorRef,
+} from "@/components/ui/MarkdownEditor";
 import { useNoteSave } from "@/hooks/useNoteSave";
+import { useTranscription } from "@/hooks/useTranscription";
 import { lightenColor } from "@/lib/utils/colors";
 import { categoriesQueryOptions } from "@/services/notes";
 import type { Note } from "@/types/note";
@@ -18,8 +24,16 @@ type NoteEditorProps = {
 
 export function NoteEditor({ note }: NoteEditorProps) {
   const router = useRouter();
+  const editorRef = useRef<MarkdownEditorRef>(null);
   const { data } = useQuery(categoriesQueryOptions());
   const categories = useMemo(() => data?.categories ?? [], [data]);
+
+  const handleTranscript = useCallback((text: string) => {
+    editorRef.current?.appendText(text);
+  }, []);
+
+  const { isRecording, startRecording, stopRecording, audioLevel } =
+    useTranscription(handleTranscript);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     note?.category.id ?? null,
@@ -87,11 +101,18 @@ export function NoteEditor({ note }: NoteEditorProps) {
           className="mb-4 w-full border-0 bg-transparent font-heading text-3xl font-bold text-black outline-none placeholder:text-black/30"
         />
         <MarkdownEditor
+          ref={editorRef}
           value={content}
           onChange={handleContentChange}
           placeholder="Speak your mind and pour your heart out...."
         />
       </div>
+
+      {isRecording ? (
+        <MicControlBar audioLevel={audioLevel} onEndCall={stopRecording} />
+      ) : (
+        <MicButton isRecording={false} onClick={startRecording} />
+      )}
     </div>
   );
 }

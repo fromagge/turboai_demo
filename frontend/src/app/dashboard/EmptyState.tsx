@@ -8,6 +8,7 @@ export function EmptyState() {
         alt="Bobba"
         width={297}
         height={296}
+        loading="eager"
       />
       <p className="text-2xl font-normal leading-[100%] text-[#88642A]">
         I&apos;m just here waiting for your charming notes...

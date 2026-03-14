@@ -1,7 +1,8 @@
 "use client";
 
 import { marked } from "marked";
-import { useEffect, useRef } from "react";
+import type { Ref } from "react";
+import { useEffect, useImperativeHandle, useRef } from "react";
 import TurndownService from "turndown";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -20,11 +21,16 @@ function markdownToHtml(md: string): string {
   return marked.parse(md, { async: false }) as string;
 }
 
+export type MarkdownEditorRef = {
+  appendText: (text: string) => void;
+};
+
 type MarkdownEditorProps = {
   value: string;
   onChange: (markdown: string) => void;
   placeholder?: string;
   className?: string;
+  ref?: Ref<MarkdownEditorRef>;
 };
 
 export function MarkdownEditor({
@@ -32,6 +38,7 @@ export function MarkdownEditor({
   onChange,
   placeholder = "Start typing...",
   className,
+  ref,
 }: MarkdownEditorProps) {
   const isExternalUpdate = useRef(false);
 
@@ -57,6 +64,18 @@ export function MarkdownEditor({
       onChange(md);
     },
   });
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      appendText(text: string) {
+        if (!editor) return;
+        editor.commands.focus("end");
+        editor.commands.insertContent(" " + text);
+      },
+    }),
+    [editor],
+  );
 
   useEffect(() => {
     if (!editor) return;

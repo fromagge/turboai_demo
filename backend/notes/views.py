@@ -1,21 +1,8 @@
-from django.db.models import Count
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from notes.cache import (
-    get_cached_categories,
-    get_cached_note,
-    get_cached_notes_list,
-    invalidate_category_caches,
-    invalidate_note_caches,
-    set_cached_categories,
-    set_cached_note,
-    set_cached_notes_list,
-)
-from notes.models import Category, Note
-from notes.schemas import CategoryResponse, NoteHistoryResponse, NoteResponse
+from notes.managers import CategoryHasNotesError, CategoryManager, NoteManager
 from notes.serializers import CategorySerializer, NoteSerializer
 
 # --- Categories ---
@@ -23,14 +10,7 @@ from notes.serializers import CategorySerializer, NoteSerializer
 
 @api_view(["GET"])
 def list_categories(request):
-    cached = get_cached_categories(request.user.id)
-    if cached is not None:
-        return Response({"categories": cached})
-    categories = Category.objects.filter(user=request.user).annotate(
-        note_count=Count("notes")
-    )
-    data = [CategoryResponse.from_model(c) for c in categories]
-    set_cached_categories(request.user.id, data)
+    data = CategoryManager.list_categories(request.user)
     return Response({"categories": data})
 
 
@@ -38,36 +18,30 @@ def list_categories(request):
 def create_category(request):
     serializer = CategorySerializer(data=request.data, context={"request": request})
     serializer.is_valid(raise_exception=True)
-    category = serializer.save()
-    invalidate_category_caches(request.user.id)
-    return Response(
-        {"category": CategoryResponse.from_model(category)},
-        status=status.HTTP_201_CREATED,
-    )
+    data = CategoryManager.create_category(request.user, serializer.validated_data)
+    return Response({"category": data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(["PATCH"])
 def update_category(request, id):
-    category = get_object_or_404(Category, id=id, user=request.user)
+    category = CategoryManager.get_category(request.user, id)
     serializer = CategorySerializer(
         category, data=request.data, partial=True, context={"request": request}
     )
     serializer.is_valid(raise_exception=True)
-    category = serializer.save()
-    invalidate_category_caches(request.user.id)
-    return Response({"category": CategoryResponse.from_model(category)})
+    data = CategoryManager.update_category(category, serializer.validated_data)
+    return Response({"category": data})
 
 
 @api_view(["DELETE"])
 def delete_category(request, id):
-    category = get_object_or_404(Category, id=id, user=request.user)
-    if category.notes.exists():
+    try:
+        CategoryManager.delete_category(request.user, id)
+    except CategoryHasNotesError:
         return Response(
             {"message": "Cannot delete a category that has notes."},
             status=status.HTTP_409_CONFLICT,
         )
-    category.delete()
-    invalidate_category_caches(request.user.id)
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -76,12 +50,7 @@ def delete_category(request, id):
 
 @api_view(["GET"])
 def list_notes(request):
-    cached = get_cached_notes_list(request.user.id)
-    if cached is not None:
-        return Response({"notes": cached})
-    notes = Note.objects.filter(user=request.user).select_related("category")
-    data = [NoteResponse.from_model(n) for n in notes]
-    set_cached_notes_list(request.user.id, data)
+    data = NoteManager.list_notes(request.user)
     return Response({"notes": data})
 
 
@@ -89,58 +58,34 @@ def list_notes(request):
 def create_note(request):
     serializer = NoteSerializer(data=request.data, context={"request": request})
     serializer.is_valid(raise_exception=True)
-    note = serializer.save()
-    note.refresh_from_db()
-    invalidate_note_caches(request.user.id)
-    invalidate_category_caches(request.user.id)
-    return Response(
-        {"note": NoteResponse.from_model(note)},
-        status=status.HTTP_201_CREATED,
-    )
+    data = NoteManager.create_note(request.user, serializer.validated_data)
+    return Response({"note": data}, status=status.HTTP_201_CREATED)
 
 
 @api_view(["GET"])
 def get_note(request, id):
-    cached = get_cached_note(request.user.id, id)
-    if cached is not None:
-        return Response({"note": cached})
-    note = get_object_or_404(
-        Note.objects.select_related("category"), id=id, user=request.user
-    )
-    data = NoteResponse.from_model(note)
-    set_cached_note(request.user.id, id, data)
+    data = NoteManager.get_note(request.user, id)
     return Response({"note": data})
 
 
 @api_view(["PATCH"])
 def update_note(request, id):
-    note = get_object_or_404(
-        Note.objects.select_related("category"), id=id, user=request.user
-    )
+    note = NoteManager.get_note_instance(request.user, id)
     serializer = NoteSerializer(
         note, data=request.data, partial=True, context={"request": request}
     )
     serializer.is_valid(raise_exception=True)
-    note = serializer.save()
-    note.refresh_from_db()
-    invalidate_note_caches(request.user.id, id)
-    if "category" in serializer.validated_data:
-        invalidate_category_caches(request.user.id)
-    return Response({"note": NoteResponse.from_model(note)})
+    data = NoteManager.update_note(note, serializer.validated_data)
+    return Response({"note": data})
 
 
 @api_view(["DELETE"])
 def delete_note(request, id):
-    note = get_object_or_404(Note, id=id, user=request.user)
-    note.delete()
-    invalidate_note_caches(request.user.id, id)
-    invalidate_category_caches(request.user.id)
+    NoteManager.delete_note(request.user, id)
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["GET"])
 def get_note_history(request, id):
-    note = get_object_or_404(Note, id=id, user=request.user)
-    history = note.history.select_related("changed_by").all()
-    data = [NoteHistoryResponse.from_model(h) for h in history]
+    data = NoteManager.get_note_history(request.user, id)
     return Response({"history": data})

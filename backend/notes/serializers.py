@@ -3,7 +3,7 @@ import re
 import nh3
 from rest_framework import serializers
 
-from notes.models import Category, Note, NoteHistory
+from notes.models import Category, Note
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -17,10 +17,6 @@ class CategorySerializer(serializers.ModelSerializer):
                 "Color must be a valid hex (e.g. #FF0000)"
             )
         return value
-
-    def create(self, validated_data: dict) -> Category:
-        validated_data["user"] = self.context["request"].user
-        return Category.objects.create(**validated_data)
 
 
 class NoteSerializer(serializers.ModelSerializer):
@@ -41,16 +37,3 @@ class NoteSerializer(serializers.ModelSerializer):
         if value.user != request.user:
             raise serializers.ValidationError("Category not found.")
         return value
-
-    def create(self, validated_data: dict) -> Note:
-        validated_data["user"] = self.context["request"].user
-        return Note.objects.create(**validated_data)
-
-    def update(self, instance: Note, validated_data: dict) -> Note:
-        NoteHistory.objects.create(
-            note=instance,
-            title=instance.title,
-            content=instance.content,
-            changed_by=self.context["request"].user,
-        )
-        return super().update(instance, validated_data)

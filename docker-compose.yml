@@ -23,6 +23,7 @@ services:
     volumes:
       - ./backend/config:/app/config
       - ./backend/core:/app/core
+      - ./backend/accounts:/app/accounts
       - ./backend/manage.py:/app/manage.py
     depends_on:
       postgres:

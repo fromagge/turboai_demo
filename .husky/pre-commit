@@ -15,10 +15,18 @@ fi
 
 # Backend: run ruff if any backend Python files are staged
 if echo "$STAGED" | grep -q "^backend/.*\.py$"; then
-  echo "🔍 Backend: running ruff..."
+  echo "🔍 Backend: running ruff (auto-fix then check)..."
   cd backend
   # Get only staged backend .py files (strip backend/ prefix)
   BACKEND_FILES=$(echo "$STAGED" | grep "^backend/.*\.py$" | sed 's|^backend/||')
+  # Auto-fix first so retry passes asap
+  uv run ruff check --fix $BACKEND_FILES
+  uv run ruff format $BACKEND_FILES
+  cd ..
+  # Re-stage only the backend .py files (in case ruff modified them)
+  echo "$STAGED" | grep "^backend/.*\.py$" | while read f; do git add "$f"; done
+  # Re-run checks; fail only if something is still wrong
+  cd backend
   uv run ruff check $BACKEND_FILES
   RUFF_CHECK=$?
   uv run ruff format --check $BACKEND_FILES
@@ -26,7 +34,7 @@ if echo "$STAGED" | grep -q "^backend/.*\.py$"; then
   cd ..
 
   if [ $RUFF_CHECK -ne 0 ] || [ $RUFF_FORMAT -ne 0 ]; then
-    echo "❌ Backend lint failed. Run 'cd backend && uv run ruff check --fix . && uv run ruff format .' to fix."
+    echo "❌ Backend lint failed (unfixable). Fix the remaining issues and try again."
     BACKEND_EXIT=1
   else
     BACKEND_EXIT=0

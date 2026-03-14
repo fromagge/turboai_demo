@@ -3,6 +3,11 @@ from django.urls import path
 from notes import views
 
 urlpatterns = [
+    path(
+        "transcription/token/",
+        views.create_transcription_token,
+        name="transcription-token",
+    ),
     path("categories/", views.list_categories, name="categories-list"),
     path("categories/<int:id>/", views.update_category, name="categories-update"),
     path(

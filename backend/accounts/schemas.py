@@ -17,6 +17,6 @@ class LoginRequest(BaseModel):
 
 
 class RegisterRequest(BaseModel):
-    username: str
     email: str
     password: str
+    username: str | None = None

@@ -1,4 +1,4 @@
-import { DashboardContent } from "@/app/dashboard/dashboard-content";
+import { DashboardContent } from "@/app/dashboard/content";
 import { PageContainer } from "@/components/page-container";
 
 export const metadata = {
@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function DashboardPage() {
   return (
-    <PageContainer>
+    <PageContainer className="items-start pt-24">
       <DashboardContent />
     </PageContainer>
   );

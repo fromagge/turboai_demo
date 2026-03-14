@@ -7,7 +7,7 @@ export const inter = Inter({
 });
 
 export const inriaSerif = localFont({
-  src: "../app/fonts/InriaSerif-Bold.ttf",
+  src: "../../app/fonts/InriaSerif-Bold.ttf",
   weight: "700",
   variable: "--font-inria-serif",
 });

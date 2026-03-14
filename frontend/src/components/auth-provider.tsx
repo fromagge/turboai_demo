@@ -4,7 +4,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { AuthenticatedLayout } from "@/components/authenticated-layout";
 import { PageContainer } from "@/components/page-container";
+import { Loading } from "@/components/ui/loading";
 import { meQueryOptions } from "@/services/auth";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -57,10 +59,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (storeLoading && hasLoggedInCookie()) {
     return (
       <PageContainer className="text-foreground">
-        <p>Loading...</p>
+        <Loading />
       </PageContainer>
     );
   }
 
-  return <>{children}</>;
+  const isPublic = PUBLIC_PATHS.includes(pathname);
+
+  if (isPublic) {
+    return <>{children}</>;
+  }
+
+  return <AuthenticatedLayout>{children}</AuthenticatedLayout>;
 }

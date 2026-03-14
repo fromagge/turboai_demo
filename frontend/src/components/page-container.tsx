@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 export function PageContainer({
   children,
@@ -10,7 +10,7 @@ export function PageContainer({
   return (
     <main
       className={cn(
-        "flex min-h-screen items-center justify-center bg-background",
+        "flex min-h-screen w-full items-center justify-center bg-background",
         className,
       )}
     >

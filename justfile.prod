@@ -1,0 +1,25 @@
+# Prod: app code copied in image, no volume mount
+# Usage: just -f justfile.prod setup | up | down | deps
+
+setup:
+    #!/usr/bin/env bash
+    set -e
+    if [ ! -f .env ]; then
+        cp .env.example .env
+        echo "Created .env from .env.example"
+    fi
+    docker compose -f docker-compose.prod.yml build
+    docker compose -f docker-compose.prod.yml run --rm web python manage.py migrate
+
+up:
+    docker compose -f docker-compose.prod.yml up
+
+down:
+    docker compose -f docker-compose.prod.yml down
+
+# Postgres + Redis only (same deps file as dev)
+deps:
+    docker compose -f docker-compose.deps.yml up -d
+
+deps-down:
+    docker compose -f docker-compose.deps.yml down

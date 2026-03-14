@@ -1,0 +1,32 @@
+include:
+  - docker-compose.deps.yml
+
+services:
+  web:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: ${PGDATABASE:-turboai}
+      PGUSER: ${PGUSER:-turboai}
+      PGPASSWORD: ${PGPASSWORD:-turboai}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: ${REDIS_DB:-0}
+      DJANGO_SETTINGS_MODULE: config.settings
+    volumes:
+      - ./backend/config:/app/config
+      - ./backend/core:/app/core
+      - ./backend/manage.py:/app/manage.py
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -1,5 +1,11 @@
 import type { Note } from "@/types/note";
 
+export function stripMarkdownPreview(content: string, maxLen: number): string {
+  const plain = content.replace(/#{1,6}\s?|\*{1,2}|`/g, "").trim();
+  const snippet = plain.slice(0, maxLen);
+  return snippet + (plain.length > maxLen ? "…" : "");
+}
+
 export function filterNotesByCategory(
   notes: Note[],
   categoryIds: number[],

@@ -113,6 +113,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "UNAUTHENTICATED_USER": None,
+    "EXCEPTION_HANDLER": "core.exception_handler.api_exception_handler",
 }
 
 # --- CORS ---

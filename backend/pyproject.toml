@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["config*", "core*", "accounts*"]
+include = ["config*", "core*", "accounts*", "notes*"]
 
 [project]
 name = "turboai-backend"
@@ -19,6 +19,7 @@ dependencies = [
     "django-redis>=6.0",
     "uvicorn[standard]",
     "django-environ",
+    "nh3>=0.3.3",
 ]
 
 [project.optional-dependencies]
@@ -38,7 +39,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 ignore = []
 
 [tool.ruff.lint.isort]
-known-first-party = ["config", "core", "accounts"]
+known-first-party = ["config", "core", "accounts", "notes"]
 
 [tool.ruff.format]
 quote-style = "double"

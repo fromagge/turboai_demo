@@ -1,4 +1,4 @@
-import { CATEGORY_COLOR_MAP, lightenColor } from "@/lib/utils/colors";
+import { lightenColor } from "@/lib/utils/colors";
 import type { Note } from "@/types/note";
 
 function stripMarkdownPreview(content: string, maxLen: number): string {
@@ -19,7 +19,7 @@ export function NotesList({ notes }: { notes: Note[] }) {
   return (
     <ul className="grid grid-cols-1 gap-4 px-6 pb-6 sm:grid-cols-2 lg:grid-cols-3">
       {notes.map((note) => {
-        const color = CATEGORY_COLOR_MAP[note.category] ?? "#957139";
+        const color = note.category.color;
         const bg = lightenColor(color, 0.5);
 
         return (
@@ -35,14 +35,16 @@ export function NotesList({ notes }: { notes: Note[] }) {
               <h2 className="text-base font-bold leading-tight text-black">
                 {note.title}
               </h2>
-              <span className="text-xs text-black/60">{note.category}</span>
+              <span className="text-xs text-black/60">
+                {note.category.name}
+              </span>
             </div>
             <p className="mt-1 line-clamp-2 text-sm text-black/60">
               {stripMarkdownPreview(note.content, 120)}
             </p>
             <div className="mt-2 flex gap-4 text-xs text-black/60">
-              <span>Created {formatDate(note.createdAt)}</span>
-              <span>Updated {formatDate(note.updatedAt)}</span>
+              <span>Created {formatDate(note.created_at)}</span>
+              <span>Updated {formatDate(note.updated_at)}</span>
             </div>
           </li>
         );

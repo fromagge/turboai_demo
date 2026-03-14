@@ -35,7 +35,7 @@ export function meQueryOptions() {
   return queryOptions({
     queryKey: ["auth", "me"],
     queryFn: getMe,
-    retry: false,
+    retry: 1,
     staleTime: 30_000,
   });
 }

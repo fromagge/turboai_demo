@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export function EmptyState() {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-4">
+    <div className="fixed inset-0 flex flex-col items-center justify-center gap-4">
       <Image
         src="/static/assets/images/bobba.png"
         alt="Bobba"

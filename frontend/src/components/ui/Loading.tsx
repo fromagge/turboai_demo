@@ -1,5 +1,14 @@
 import { cn } from "@/lib/utils/cn";
 
 export function Loading({ className }: { className?: string }) {
-  return <p className={cn("text-foreground", className)}>Loading...</p>;
+  return (
+    <div
+      className={cn(
+        "fixed inset-0 flex items-center justify-center",
+        className,
+      )}
+    >
+      <p className="text-foreground">Loading...</p>
+    </div>
+  );
 }

@@ -16,16 +16,22 @@ export class ApiError extends Error {
 
 let refreshPromise: Promise<Response> | null = null;
 
-async function attemptRefresh(): Promise<Response> {
+async function attemptRefresh(): Promise<boolean> {
   if (!refreshPromise) {
     refreshPromise = fetch("/api/auth/refresh/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-    }).finally(() => {
-      refreshPromise = null;
-    });
+    })
+      .then(async (res) => {
+        await res.text();
+        return res;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
   }
-  return refreshPromise;
+  const res = await refreshPromise;
+  return res.ok;
 }
 
 function parseFieldErrors(body: Record<string, unknown>): FieldErrors {
@@ -54,8 +60,8 @@ export async function apiClient<T>(
 
   const skipRefresh = endpoint.includes("/auth/refresh");
   if (response.status === 401 && !skipRefresh) {
-    const refreshResponse = await attemptRefresh();
-    if (refreshResponse.ok) {
+    const refreshed = await attemptRefresh();
+    if (refreshed) {
       response = await fetch(endpoint, {
         ...options,
         headers,

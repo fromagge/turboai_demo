@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 
 export function NewNoteButton() {
   return (
-    <div className="absolute right-6 -top-16 z-10">
+    <div className="absolute right-6 top-7 z-10">
       <Button
         type="button"
         variant="outline"

@@ -10,22 +10,10 @@ export interface Note {
   updated_at: string; // ISO date string
 }
 
-export interface NoteHistory {
-  id: number;
-  title: string;
-  content: string;
-  changed_by: string | null;
-  changed_at: string;
-}
-
 export interface NotesResponse {
   notes: Note[];
 }
 
 export interface NoteResponse {
   note: Note;
-}
-
-export interface NoteHistoryResponse {
-  history: NoteHistory[];
 }

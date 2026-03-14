@@ -12,8 +12,8 @@ from notes.cache import (
     set_cached_note,
     set_cached_notes_list,
 )
-from notes.models import Category, Note, NoteHistory
-from notes.schemas import CategoryResponse, NoteHistoryResponse, NoteResponse
+from notes.models import Category, Note
+from notes.schemas import CategoryResponse, NoteResponse
 
 
 class CategoryHasNotesError(Exception):
@@ -114,12 +114,6 @@ class NoteManager:
         note_id = note.id
         category_changed = "category" in validated_data
         with transaction.atomic():
-            NoteHistory.objects.create(
-                note=note,
-                title=note.title,
-                content=note.content,
-                changed_by=note.user,
-            )
             for field, value in validated_data.items():
                 setattr(note, field, value)
             note.save()
@@ -140,9 +134,3 @@ class NoteManager:
                 invalidate_category_caches(user.id),
             )
         )
-
-    @staticmethod
-    def get_note_history(user, note_id: int) -> list[dict]:
-        note = get_object_or_404(Note, id=note_id, user=user)
-        history = note.history.select_related("changed_by").all()
-        return [NoteHistoryResponse.from_model(h) for h in history]

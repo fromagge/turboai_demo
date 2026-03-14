@@ -9,14 +9,3 @@ class UserResponse(BaseModel):
     @classmethod
     def from_user(cls, user) -> dict:
         return cls(id=user.id, username=user.username, email=user.email).model_dump()
-
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
-
-class RegisterRequest(BaseModel):
-    email: str
-    password: str
-    username: str | None = None

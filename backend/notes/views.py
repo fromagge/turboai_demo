@@ -83,9 +83,3 @@ def update_note(request, id):
 def delete_note(request, id):
     NoteManager.delete_note(request.user, id)
     return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(["GET"])
-def get_note_history(request, id):
-    data = NoteManager.get_note_history(request.user, id)
-    return Response({"history": data})

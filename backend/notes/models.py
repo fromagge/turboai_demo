@@ -47,26 +47,3 @@ class Note(models.Model):
 
     def __str__(self) -> str:
         return self.title
-
-
-class NoteHistory(models.Model):
-    note = models.ForeignKey(
-        Note,
-        on_delete=models.CASCADE,
-        related_name="history",
-    )
-    title = models.CharField(max_length=255)
-    content = models.TextField()
-    changed_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-    )
-    changed_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = "notes_notehistory"
-        ordering = ["-changed_at"]
-
-    def __str__(self) -> str:
-        return f"History for {self.note_id} at {self.changed_at}"

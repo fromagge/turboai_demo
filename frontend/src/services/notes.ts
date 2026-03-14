@@ -2,11 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 
 import { apiClient } from "@/lib/clients/api";
 import type { CategoriesResponse, CategoryResponse } from "@/types/category";
-import type {
-  NoteHistoryResponse,
-  NoteResponse,
-  NotesResponse,
-} from "@/types/note";
+import type { NoteResponse, NotesResponse } from "@/types/note";
 
 // --- Categories ---
 
@@ -76,10 +72,6 @@ export function deleteNote(id: number) {
   return apiClient<void>(`/api/notes/${id}/delete/`, {
     method: "DELETE",
   });
-}
-
-export function getNoteHistory(id: number) {
-  return apiClient<NoteHistoryResponse>(`/api/notes/${id}/history/`);
 }
 
 // --- Query Options ---

@@ -22,11 +22,6 @@ class CategoryResponse(BaseModel):
         ).model_dump()
 
 
-class CategoryRequest(BaseModel):
-    name: str
-    color: str
-
-
 class NoteResponse(BaseModel):
     id: int
     title: str
@@ -44,28 +39,4 @@ class NoteResponse(BaseModel):
             category=CategoryResponse.from_model(note.category),
             created_at=note.created_at.isoformat(),
             updated_at=note.updated_at.isoformat(),
-        ).model_dump()
-
-
-class NoteRequest(BaseModel):
-    title: str
-    content: str
-    category_id: int
-
-
-class NoteHistoryResponse(BaseModel):
-    id: int
-    title: str
-    content: str
-    changed_by: str | None
-    changed_at: str
-
-    @classmethod
-    def from_model(cls, history) -> dict:
-        return cls(
-            id=history.id,
-            title=history.title,
-            content=history.content,
-            changed_by=(history.changed_by.username if history.changed_by else None),
-            changed_at=history.changed_at.isoformat(),
         ).model_dump()

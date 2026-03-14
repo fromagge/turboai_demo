@@ -1,5 +1,6 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from core.schemas import HealthResponse, HelloResponse
@@ -7,6 +8,7 @@ from core.utils import check_cache, check_database
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def health(request):
     db_ok = check_database()
     cache_ok = check_cache()
@@ -32,6 +34,7 @@ def health(request):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def hello(request):
     data = {"message": "Hello, world!"}
     serializer = HelloResponse.drf_serializer(data=data)

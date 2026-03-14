@@ -13,6 +13,5 @@ urlpatterns = [
     path("<int:id>/", views.get_note, name="notes-detail"),
     path("<int:id>/update/", views.update_note, name="notes-update"),
     path("<int:id>/delete/", views.delete_note, name="notes-delete"),
-    path("<int:id>/history/", views.get_note_history, name="notes-history"),
     path("categories/create/", views.create_category, name="categories-create"),
 ]

@@ -22,7 +22,7 @@ backend/
 │   ├── authentication.py  # CookieJWTAuthentication (reads JWT from cookies)
 │   ├── cache.py           # Redis cache helpers (get/set/delete user)
 │   ├── models.py          # Custom User model (AbstractUser, unique email)
-│   ├── schemas.py         # Pydantic models: UserResponse, LoginRequest, RegisterRequest
+│   ├── schemas.py         # Pydantic models: UserResponse
 │   ├── serializers.py     # DRF RegisterSerializer
 │   ├── tokens.py          # get_tokens_for_user, set/clear_auth_cookies
 │   ├── views.py           # login, register, refresh, logout, me

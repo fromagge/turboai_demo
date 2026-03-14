@@ -26,9 +26,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
+
+  const cookiePresent = hasLoggedInCookie();
+
   const { data, isError, isLoading } = useQuery({
     ...meQueryOptions(),
-    enabled: hasLoggedInCookie(),
+    enabled: cookiePresent,
   });
 
   useEffect(() => {
@@ -56,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(data.user);
   }, [data, isError, isLoading, setUser, reset, setLoading, router, pathname]);
 
-  if (storeLoading && hasLoggedInCookie()) {
+  if (storeLoading) {
     return (
       <PageContainer className="text-foreground">
         <Loading />

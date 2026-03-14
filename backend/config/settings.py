@@ -7,7 +7,10 @@ env = environ.Env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 environ.Env.read_env(BASE_DIR / ".env", overwrite=False)
 
-SECRET_KEY = env("SECRET_KEY", default="insecure-dev-key")
+SECRET_KEY = env(
+    "SECRET_KEY",
+    default="insecure-dev-key-min-32-chars-for-hs256",
+)
 DEBUG = env.bool("DEBUG", default=True)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 

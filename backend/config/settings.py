@@ -161,5 +161,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 USE_TZ = True
 TIME_ZONE = "UTC"
 
-# --- OpenAI ---
-OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
+# --- Deepgram ---
+DEEPGRAM_API_KEY = env("DEEPGRAM_API_KEY", default="")

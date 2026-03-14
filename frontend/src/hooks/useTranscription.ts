@@ -11,17 +11,8 @@ declare global {
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-const OPENAI_REALTIME_URL =
-  "wss://api.openai.com/v1/realtime?model=gpt-4o-mini-transcribe&intent=transcription";
-
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
-}
+const DEEPGRAM_WS_URL =
+  "wss://api.deepgram.com/v1/listen?encoding=linear16&sample_rate=24000&channels=1&model=nova-3&punctuate=true&interim_results=false";
 
 export function useTranscription(onTranscript: (text: string) => void) {
   const [isRecording, setIsRecording] = useState(false);
@@ -116,7 +107,7 @@ export function useTranscription(onTranscript: (text: string) => void) {
     streamRef.current = stream;
     setIsRecording(true);
 
-    let tokenResponse: { client_secret: string } | null = null;
+    let tokenResponse: { token: string } | null = null;
     try {
       tokenResponse = await getTranscriptionToken();
     } catch {
@@ -124,27 +115,10 @@ export function useTranscription(onTranscript: (text: string) => void) {
       return;
     }
 
-    const ws = new WebSocket(OPENAI_REALTIME_URL, [
-      "realtime",
-      `openai-insecure-api-key.${tokenResponse.client_secret}`,
-    ]);
+    const ws = new WebSocket(DEEPGRAM_WS_URL, ["token", tokenResponse.token]);
     wsRef.current = ws;
 
     ws.onopen = async () => {
-      ws.send(
-        JSON.stringify({
-          type: "session.update",
-          session: {
-            input_audio_transcription: { model: "gpt-4o-mini-transcribe" },
-            turn_detection: {
-              type: "server_vad",
-              silence_duration_ms: 500,
-            },
-            input_audio_format: "pcm16",
-          },
-        }),
-      );
-
       try {
         const audioContext = new AudioContext({ sampleRate: 24000 });
         audioContextRef.current = audioContext;
@@ -161,13 +135,7 @@ export function useTranscription(onTranscript: (text: string) => void) {
 
         worklet.port.onmessage = (event: MessageEvent) => {
           if (ws.readyState === WebSocket.OPEN) {
-            const base64 = arrayBufferToBase64(event.data);
-            ws.send(
-              JSON.stringify({
-                type: "input_audio_buffer.append",
-                audio: base64,
-              }),
-            );
+            ws.send(event.data);
           }
         };
 
@@ -182,10 +150,9 @@ export function useTranscription(onTranscript: (text: string) => void) {
 
     ws.onmessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data as string);
-      if (
-        data.type === "conversation.item.input_audio_transcription.completed"
-      ) {
-        onTranscriptRef.current(data.transcript);
+      const transcript = data.channel?.alternatives?.[0]?.transcript;
+      if (transcript && data.is_final) {
+        onTranscriptRef.current(transcript);
       }
     };
 

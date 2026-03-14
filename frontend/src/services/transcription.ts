@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/clients/api";
 
 interface TranscriptionTokenResponse {
-  client_secret: string;
+  token: string;
 }
 
 export function getTranscriptionToken() {

@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
 
   const hasTokens = request.cookies.has("logged_in");
 
-  if (hasTokens && AUTH_ROUTES.includes(pathname)) {
+  if (hasTokens && (pathname === "/" || AUTH_ROUTES.includes(pathname))) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

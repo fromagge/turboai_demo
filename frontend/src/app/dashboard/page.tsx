@@ -1,4 +1,5 @@
-import { DashboardContent } from "@/components/dashboard-content";
+import { DashboardContent } from "@/app/dashboard/dashboard-content";
+import { PageContainer } from "@/components/page-container";
 
 export const metadata = {
   title: "Dashboard — TurboAI",
@@ -6,8 +7,8 @@ export const metadata = {
 
 export default function DashboardPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
+    <PageContainer>
       <DashboardContent />
-    </main>
+    </PageContainer>
   );
 }

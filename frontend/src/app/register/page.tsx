@@ -1,4 +1,5 @@
-import { RegisterForm } from "@/components/register-form";
+import { RegisterForm } from "@/app/register/form";
+import { PageContainer } from "@/components/page-container";
 
 export const metadata = {
   title: "Register — TurboAI",
@@ -6,8 +7,8 @@ export const metadata = {
 
 export default function RegisterPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
+    <PageContainer>
       <RegisterForm />
-    </main>
+    </PageContainer>
   );
 }

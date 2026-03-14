@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
+import { PageContainer } from "@/components/page-container";
 import { meQueryOptions } from "@/services/auth";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -55,9 +56,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   if (storeLoading && hasLoggedInCookie()) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
-      </div>
+      <PageContainer className="text-foreground">
+        <p>Loading...</p>
+      </PageContainer>
     );
   }
 

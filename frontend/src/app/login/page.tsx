@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
-import { LoginForm } from "@/components/login-form";
+import { LoginForm } from "@/app/login/form";
+import { PageContainer } from "@/components/page-container";
 
 export const metadata = {
   title: "Login — TurboAI",
@@ -8,10 +9,10 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
+    <PageContainer>
       <Suspense>
         <LoginForm />
       </Suspense>
-    </main>
+    </PageContainer>
   );
 }

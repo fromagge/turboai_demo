@@ -66,7 +66,11 @@ export async function apiClient<T>(
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     const fieldErrors = parseFieldErrors(body);
-    const message = body.message || body.detail || "Request failed";
+    const message =
+      (body.message as string) ||
+      (body.detail as string) ||
+      (body.error as string) ||
+      "Request failed";
     throw new ApiError(response.status, message, fieldErrors);
   }
 

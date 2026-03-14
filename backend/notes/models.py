@@ -47,3 +47,25 @@ class Note(models.Model):
 
     def __str__(self) -> str:
         return self.title
+
+
+class TranscriptionUsage(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="transcription_usages",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    estimated_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=6,
+        default=0,
+        help_text="Estimated cost in USD for this transcription session",
+    )
+
+    class Meta:
+        db_table = "notes_transcription_usage"
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.user} – ${self.estimated_cost} @ {self.created_at}"

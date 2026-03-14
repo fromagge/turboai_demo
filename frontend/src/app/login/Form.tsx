@@ -2,22 +2,23 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { ApiError } from "@/lib/clients/api";
-import { type RegisterFormData, registerSchema } from "@/lib/schemas/register";
-import { register } from "@/services/auth";
+import { type LoginFormData, loginSchema } from "@/lib/schemas/login";
+import { login } from "@/services/auth";
 import { useAuthStore } from "@/stores/auth-store";
 
-export function RegisterForm() {
+export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const setUser = useAuthStore((s) => s.setUser);
 
@@ -26,24 +27,29 @@ export function RegisterForm() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
   });
 
   const mutation = useMutation({
-    mutationFn: register,
+    mutationFn: login,
     onSuccess: (data) => {
       setUser(data.user);
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
-      router.push("/dashboard");
+      const next = searchParams.get("next");
+      const safeNext =
+        next && next.startsWith("/") && !next.startsWith("//")
+          ? next
+          : "/dashboard";
+      router.push(safeNext);
     },
     onError: (error) => {
       if (error instanceof ApiError) {
         const { fieldErrors } = error;
         if (Object.keys(fieldErrors).length > 0) {
           for (const [key, messages] of Object.entries(fieldErrors)) {
-            if (key in registerSchema.shape) {
-              setError(key as keyof RegisterFormData, {
+            if (key in loginSchema.shape) {
+              setError(key as keyof LoginFormData, {
                 message: messages[0],
               });
             }
@@ -57,7 +63,7 @@ export function RegisterForm() {
     },
   });
 
-  const onSubmit = (data: RegisterFormData) => {
+  const onSubmit = (data: LoginFormData) => {
     mutation.mutate(data);
   };
 
@@ -65,14 +71,14 @@ export function RegisterForm() {
     <div className="flex w-full max-w-96 flex-col items-center justify-center space-y-6 m-6 text-foreground">
       <div className="relative w-full">
         <Image
-          src="/static/assets/images/cow.png"
+          src="/static/assets/images/cactus.png"
           alt=""
-          width={188}
-          height={134}
-          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-[-16px] h-[134px] w-[188px] object-contain"
+          width={95}
+          height={114}
+          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 h-[114px] w-[95px] object-contain"
         />
         <h1 className="w-full rounded-input py-3 text-center font-heading text-[48px] font-bold leading-[100%] tracking-normal text-foreground">
-          Yay, New Friend!
+          Yay, You&apos;re Back!
         </h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-96">
@@ -119,12 +125,12 @@ export function RegisterForm() {
           disabled={mutation.isPending}
           className="mt-11 h-11 w-full max-w-96 text-base leading-none tracking-normal"
         >
-          {mutation.isPending ? "Creating account..." : "Sign up"}
+          {mutation.isPending ? "Logging in..." : "Login"}
         </Button>
       </form>
       <p className="text-center text-sm">
-        <Link href="/login" className="text-link underline">
-          We&apos;re already friends!
+        <Link href="/register" className="text-link underline">
+          Oops! I&apos;ve never been here before
         </Link>
       </p>
     </div>

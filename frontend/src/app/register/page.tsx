@@ -1,8 +1,8 @@
-import { RegisterForm } from "@/app/register/form";
-import { PageContainer } from "@/components/page-container";
+import { RegisterForm } from "@/app/register/Form";
+import { PageContainer } from "@/components/PageContainer";
 
 export const metadata = {
-  title: "Register — TurboAI",
+  title: "Register",
 };
 
 export default function RegisterPage() {

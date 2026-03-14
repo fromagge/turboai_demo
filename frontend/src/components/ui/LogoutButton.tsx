@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { logout } from "@/services/auth";
 import { useAuthStore } from "@/stores/auth-store";
 

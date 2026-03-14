@@ -1,14 +1,14 @@
-import { DashboardContent } from "@/app/dashboard/content";
-import { PageContainer } from "@/components/page-container";
+import { Content } from "@/app/dashboard/Content";
+import { PageContainer } from "@/components/PageContainer";
 
 export const metadata = {
-  title: "Dashboard — TurboAI",
+  title: "Dashboard",
 };
 
 export default function DashboardPage() {
   return (
     <PageContainer className="items-start pt-24">
-      <DashboardContent />
+      <Content />
     </PageContainer>
   );
 }

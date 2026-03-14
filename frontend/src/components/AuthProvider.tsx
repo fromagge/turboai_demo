@@ -4,9 +4,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import { AuthenticatedLayout } from "@/components/authenticated-layout";
-import { PageContainer } from "@/components/page-container";
-import { Loading } from "@/components/ui/loading";
+import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
+import { PageContainer } from "@/components/PageContainer";
+import { Loading } from "@/components/ui/Loading";
 import { meQueryOptions } from "@/services/auth";
 import { useAuthStore } from "@/stores/auth-store";
 

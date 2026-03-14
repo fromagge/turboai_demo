@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 
-import { AuthProvider } from "@/components/auth-provider";
+import { AuthProvider } from "@/components/AuthProvider";
 import { QueryProvider } from "@/lib/clients/query-provider";
 import { fontVariables } from "@/lib/utils/fonts";
 
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TurboAI Notetaking Demo",
-  description: "TurboAI Notetaking Demo",
+  title: {
+    default: "Notes - Not AI Note Taker",
+    template: "%s — Notes",
+  },
+  description: "Notes - Not AI Note Taker",
+  icons: {
+    icon: "/static/assets/favicon.ico",
+  },
 };
 
 export default function RootLayout({

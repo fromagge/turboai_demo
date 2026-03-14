@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export function DashboardEmptyState() {
+export function EmptyState() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4">
       <Image

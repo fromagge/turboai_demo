@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 
-import { LoginForm } from "@/app/login/form";
-import { PageContainer } from "@/components/page-container";
+import { LoginForm } from "@/app/login/Form";
+import { PageContainer } from "@/components/PageContainer";
 
 export const metadata = {
-  title: "Login — TurboAI",
+  title: "Login",
 };
 
 export default function LoginPage() {

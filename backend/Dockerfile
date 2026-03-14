@@ -12,7 +12,10 @@ COPY core/ core/
 COPY accounts/ accounts/
 COPY notes/ notes/
 COPY manage.py ./
+COPY entrypoint.sh ./
+RUN chmod +x entrypoint.sh
 
 EXPOSE 8000
 
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -24,6 +24,10 @@ Here's how to run the project:
 
 ---
 
+## Live 
+
+**Live Demo:** [turboai.barfed.cloud](https://turboai.barfed.cloud)
+
 ## Why this AI tooling setup
 
 I use **Claude** and **Cursor** in parallel. I’m used to viewing code in an IDE, so Claude’s “chat and watch the result” flow isn’t really for me. With this setup I can:
